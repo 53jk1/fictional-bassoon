@@ -2,6 +2,7 @@ package main //main.go
 // Language: go
 import ( //importing packages
 	"encoding/json" // for json
+	"errors"
 	"fmt"           // for printing
 	"io/ioutil"     // for reading the website
 	"log"           //logging
@@ -83,7 +84,7 @@ func Unmarshal() error { //Take the info from website and save it to struct
 } //end of Unmarshal
 
 // FindByName - find the artist by name.
-func FindByName(input string) { //input == what user entered on the website
+func FindByName(input string) error { //input == what user entered on the website
 
 	x := 0 // x == band's ID
 
@@ -95,20 +96,32 @@ func FindByName(input string) { //input == what user entered on the website
 		}
 		x++ // x == band's ID
 
+		if x == len(artistid) {
+			return errors.New("400")
+		}
 	}
 
 	nbr = x //nbr == band's ID
+	return nil
 }
 
 // InduvidualPage - individual page.
 func InduvidualPage(w http.ResponseWriter, r *http.Request) { //individual page
+	if r.FormValue("NAME") == "" {
+		http.Error(w, "400 error.", http.StatusNotFound)
+		return
+	}
 
 	switch r.Method { //switch for the method
 	case "GET": //if the method is GET
 		http.ServeFile(w, r, "templates/individual.html") //use the info listed in "uwu" for the main page (templates/main.html)
 	case "POST": //if the method is POST
 		if r.FormValue("NAME") != "" { //Go to the "FindByName" function and use "NAME" (from html site) as input
-			FindByName(r.FormValue("NAME")) //Go to the "FindByName" function and use "NAME" (from html site) as input
+			err := FindByName(r.FormValue("NAME")) //Go to the "FindByName" function and use "NAME" (from html site) as input
+			if err != nil {
+				http.Error(w, "500 not found.", http.StatusNotFound)
+				return
+			}
 
 		}
 
@@ -139,7 +152,6 @@ func InduvidualPage(w http.ResponseWriter, r *http.Request) { //individual page
 
 // Page - main page.
 func Page(w http.ResponseWriter, r *http.Request) { //main page
-
 	if r.URL.Path != "/" { //if the path is not "/"
 		http.Error(w, "404 not found.", http.StatusNotFound) //error 404
 		return                                               //return

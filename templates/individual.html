@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+   
+
+</head>
+
+<body>
+    <div>
+
+        <img id="img" src={{.Image}} class="Image" alt={{.Name}}>
+        <p>{{ .Name}}</p>
+        <p>{{ .Members}}</p>
+        <p>{{ .Creation}}</p>
+        <p>{{ .First}}</p>
+        <p>{{ range $k, $v := $.Relation }} {{ $k }}: {{ $v }}</p>
+        {{ end }}
+
+    </div>
+
+</body>
